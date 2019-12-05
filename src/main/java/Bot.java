@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.concurrent.Exchanger;
 
 public class Bot extends TelegramLongPollingBot {
 
