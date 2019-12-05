@@ -14,6 +14,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+
 public class Bot extends TelegramLongPollingBot {
 
     private String address = "";
@@ -49,7 +50,7 @@ public class Bot extends TelegramLongPollingBot {
         sendTypeAction.setChatId(update.getMessage().getChatId());
         sendTypeAction.setAction(ActionType.TYPING);
         sendUploadAction.setAction(ActionType.UPLOADDOCUMENT);
-        sendDocument.setChatId(update.getMessage().getChatId()).setDocument(new File(Bot.class.getResource("source.txt").getFile()));
+        sendDocument.setChatId(update.getMessage().getChatId()).setDocument(new File("https://cdn.neow.in/news/images/uploaded/2018/12/1545326756_codes_story.jpg").getAbsoluteFile());
 
         SendMessage sendMessage = new SendMessage().enableMarkdown(true).setChatId(update.getMessage().getChatId());
         chatId = update.getMessage().getChatId();
