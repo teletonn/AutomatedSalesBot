@@ -136,7 +136,7 @@ public class Bot extends TelegramLongPollingBot {
             try {
                 System.out.println(xPub.getxPub());
                 receiver.checkXpubGap(xPub.getxPub());
-                ReceiveResponse response = receiver.receive11(xPub.getxPub(), callbackUrl);
+                ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
                 receiver.setActualPriceInBtc();
                 address = response.getReceivingAddress();
                 index = response.getIndex();
@@ -146,7 +146,7 @@ public class Bot extends TelegramLongPollingBot {
                     xPub.getNewXpub(xPub.xpubListCreator());
                     System.out.println("New xPub is: " + xPub.getxPub());
                     try {
-                        ReceiveResponse response = receiver.receive11(xPub.getxPub(), callbackUrl);
+                        ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
                         address = response.getReceivingAddress();
                         index = response.getIndex();
                     } catch (Exception e1) {
