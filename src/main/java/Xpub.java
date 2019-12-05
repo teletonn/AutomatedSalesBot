@@ -10,7 +10,7 @@ public class Xpub {
     }
 
     public void xPubInit() {
-        if (xPub.equals("")) {
+        if (xPub.equals("") || xPub.isEmpty() || xPub.equals(0)) {
             getNewXpub(xpubListCreator());
         }
     }
