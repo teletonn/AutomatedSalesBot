@@ -22,6 +22,7 @@ public class Messages {
     private BigDecimal expectedBalance;
     private long actualBalance;
     private String lastMessage = "";
+    private boolean isPayed = false;
 
     Exchanger exchanger = new Exchanger();
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
@@ -77,7 +78,7 @@ public class Messages {
         return System.getenv("AboutLink");
     }
 
-    public String preparinTransaction(ReplyKeyboardMarkup keyboardMarkup){
+    public String preparingTransaction(ReplyKeyboardMarkup keyboardMarkup){
         System.out.println("Start preparing transaction");
 
         try {
@@ -123,6 +124,39 @@ public class Messages {
                 + address
                 + "\n"
                 + "Payment should be in *ONE* transaction";
+    }
+
+    public String checkTrxStatus(ReplyKeyboardMarkup keyboardMarkup){
+        try {
+            trxHash = blockExplorerImpl.getTrxHash(address);
+            isConfirmed = blockExplorerImpl.isConfirmed(trxHash);
+            if (isConfirmed) {
+                expectedBalance = receiver.getAmountInBtc();
+                actualBalance = blockExplorerImpl.getAddressBalance(address);
+                BigDecimal actualBalanceBIG = new BigDecimal(actualBalance);
+
+                if (actualBalanceBIG.equals(expectedBalance) || actualBalanceBIG.doubleValue() > expectedBalance.doubleValue()) {
+                    isPayed = true;
+                    lastMessage = "Check trx status";
+                    System.out.println("Congratulations!!! Someone bought your CODE!" +
+                            "\n" + "You get " + actualBalance + " BTC" +
+                            "\n" + "to this address: " + address +
+                            "\n" + "(actualBalance.equals(expectedBalance) & I give your source code to someone)");
+                    return "Thank you for purchase, now I'll send the Source Code";
+
+                } else {
+                    return "You send not enough money, if you *SURE* that it's mistake please contact " + System.getenv("ownerName");     //Heroku Var
+                }
+
+            } else {
+                return "TRX UN confirmed, we should wait a bit";
+            }
+
+        } catch (Exception e) {
+            System.out.println("IOException when check trx status");
+            e.printStackTrace();
+            return "Transaction not found";
+        }
     }
 
    public String exchangeMessage(ReplyKeyboardMarkup keyboardMarkup){
@@ -204,4 +238,9 @@ public class Messages {
 
        return "Features still in progress";
    }
+
+
+    public boolean getIsPayed() {
+        return isPayed;
+    }
 }
