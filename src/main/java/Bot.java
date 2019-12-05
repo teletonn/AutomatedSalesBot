@@ -16,7 +16,7 @@ public class Bot extends TelegramLongPollingBot {
     private String id;
 
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-    Xpub xPub = new Xpub();
+   // Xpub xPub = new Xpub();
 
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
@@ -27,7 +27,7 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
 
-        xPub.xPubInit();
+        messages.xPub.xPubInit();
 
         sendTypeAction.setChatId(update.getMessage().getChatId());
         sendTypeAction.setAction(ActionType.TYPING);
