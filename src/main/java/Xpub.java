@@ -9,6 +9,12 @@ public class Xpub {
         return xPub;
     }
 
+    public void xPubInit() {
+        if (xPub.equals("")) {
+            getNewXpub(xpubListCreator());
+        }
+    }
+
     public List<String> xpubListCreator() {
         List<String> xpubList = new ArrayList<String>();
 

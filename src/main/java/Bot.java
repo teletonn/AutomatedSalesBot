@@ -1,5 +1,3 @@
-import info.blockchain.api.APIException;
-import info.blockchain.api.receive.ReceiveResponse;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
@@ -7,36 +5,18 @@ import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-
 
 public class Bot extends TelegramLongPollingBot {
 
-    private String address = "";
-    private int index;
     private long chatId;
     private String id;
-    private String callbackUrl = System.getenv("callbackUrl");    //Heroku Var
-    private boolean isConfirmed;
-    private String trxHash;
-    private BigDecimal value;
-    private String currency;
-    private BigDecimal expectedBalance;
-    private long actualBalance;
-    private String lastMessage = "";
 
-    Exchanger exchanger = new Exchanger();
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-    Receiver receiver = new Receiver();
     Xpub xPub = new Xpub();
-    BlockExplorerImpl blockExplorerImpl = new BlockExplorerImpl();
-    StatisticsImpl statisticsImpl = new StatisticsImpl();
 
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
@@ -47,7 +27,7 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
 
-        xPubInit();
+        xPub.xPubInit();
 
         sendTypeAction.setChatId(update.getMessage().getChatId());
         sendTypeAction.setAction(ActionType.TYPING);
@@ -78,12 +58,6 @@ public class Bot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
 
-    }
-
-    private void xPubInit() {
-        if (xPub.getxPub().equals("")) {
-            xPub.getNewXpub(xPub.xpubListCreator());
-        }
     }
 
     public String getBotUsername() {
@@ -117,132 +91,63 @@ public class Bot extends TelegramLongPollingBot {
         }
 
         if (msg.equals("Check trx status")) {
-           return messages.checkTrxStatus(keyboardMarkup);
+           return messages.checkTrxStatus();
         }
 
-        if(lastMessage.contains("Check trx status")){
+        if(messages.getLastMessage().contains("Check trx status")){
             sendFiles(messages.getIsPayed());
         }
 
         if (msg.equals("Cancel trx")) {
-            address = "";
-            System.out.println("Cancel trx");
-            return "DONE! Cancel trx";
+            return messages.cancelTrx();
         }
-
 
         if (msg.equals("Exchanger")) {
             return messages.exchangeMessage(keyboardMarkup);
         }
 
         if (msg.contains("USD to BTC")) {
-            lastMessage = msg;
-            return "Type number";
+            return messages.usdToBtc(msg);
         }
 
-        if (lastMessage.contains("USD to BTC")) { //TODO Put it to Exchanger new method
-            currency = "USD";
-
-            try {
-                value = new BigDecimal(msg);
-                lastMessage = "";
-            } catch (NumberFormatException e) {
-                return "This is not a number, try again";
-            }
-            return currency +
-                    "*" + value + "*" +
-                    " = " +
-                    "*" + exchanger.exchange(value, currency).toString() + "*" +
-                    " BTC";
+        if (messages.getLastMessage().contains("USD to BTC")) {
+           return messages.exchangeUsdToBtc(msg);
         }
 
         if (msg.contains("EUR to BTC")) {
-            lastMessage = msg;
-            return "Type number";
+            return messages.eurToBtc(msg);
         }
 
-        if (lastMessage.contains("EUR to BTC")) {
-            currency = "EUR";
-
-            try {
-                value = new BigDecimal(msg);
-                lastMessage = "";
-            } catch (NumberFormatException e) {
-                return "This is not a number, try again";
-            }
-            return currency +
-                    "*" + value + "*" +
-                    " = " +
-                    "*" + exchanger.exchange(value, currency).toString() + "*" +
-                    " BTC";
+        if (messages.getLastMessage().contains("EUR to BTC")) {
+            return messages.exchangeEurToBtc(msg);
         }
 
         if (msg.contains("PLN to BTC")) {
-            lastMessage = msg;
-            return "Type number";
+            return messages.plnToBtc(msg);
         }
 
-        if (lastMessage.contains("PLN to BTC")) {
-            currency = "PLN";
-
-            try {
-                value = new BigDecimal(msg);
-                lastMessage = "";
-            } catch (NumberFormatException e) {
-                return "This is not a number, try again";
-            }
-            return currency +
-                    "*" + value + "*" +
-                    " = " +
-                    "*" + exchanger.exchange(value, currency).toString() + "*" +
-                    " BTC";
+        if (messages.getLastMessage().contains("PLN to BTC")) {
+           return messages.exchangePlnToBtc(msg);
         }
 
         if (msg.equals("Blockchain Checker")) {
-            return messages.blockChainCheker(keyboardMarkup);
+            return messages.blockChainChecker(keyboardMarkup);
         }
 
         if (msg.equals("Check TRX by Hash")) {
-            lastMessage = "Check TRX by Hash";
-            return "Paste TRX Hash";
+            return messages.checkTrxByHash();
         }
 
-        if (lastMessage.contains("Check TRX by Hash")) {
-            String usersHash = msg;
-            lastMessage = "";
-            try {
-                if (blockExplorerImpl.isConfirmed(usersHash)) {
-                    return "Transaction was *confirmed*";
-                } else {
-                    return "Transaction is *UN confirmed*";
-                }
-            } catch (APIException e) {
-                return "'Transaction *NOT* found";
-            }
+        if (messages.getLastMessage().contains("Check TRX by Hash")) {
+           return messages.checkingTrxByHash(msg);
         }
 
         if (msg.equals("Check Address Balance")) {
-            lastMessage = "Check Address Balance";
-            return "Paste BTC address";
+            return messages.checkAddressBalance();
         }
 
-        if (lastMessage.contains("Check Address Balance")) {
-            String userAddress = msg;
-            lastMessage = "";
-            long userBalance;
-            double userBalanceBtc;
-            try {
-                userBalance = blockExplorerImpl.getAddressBalance(userAddress);  //get in Satoshi
-                userBalanceBtc = (double) userBalance / 100000000; //convert to BTC
-            } catch (Exception e) {
-                return "Wrong BTC address";
-            }
-            return userAddress
-                    + "\n"
-                    + "Address Balance: "
-                    + "\n"
-                    + userBalanceBtc
-                    + " *BTC*";
+        if (messages.getLastMessage().contains("Check Address Balance")) {
+            return messages.checkingAddressBalance(msg);
         }
 
         if (msg.equals("Fork checker")) {
@@ -250,25 +155,11 @@ public class Bot extends TelegramLongPollingBot {
         }
 
         if (msg.contains("Check chain for fork")) {
-            System.out.println("Fork checker");
-            if (blockExplorerImpl.isForked()) {
-                return "\n" + "The main chain has *forked*!" + "\n";
-            } else {
-                return "\n" + "The chain is still in *one piece* :)" + "\n";
-            }
+            return messages.checkingFork();
         }
 
         if (msg.equals("Today's blocks quantity")) {
-            System.out.println("Today's mined blocks");
-            int numTodayBlocks;
-            try {
-                numTodayBlocks = blockExplorerImpl.getTodayBlocks();
-                return "*" + numTodayBlocks + "*" + " blocks were mined today since 00:00 UTC";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "*Upsss...* Can't reach today's blocks";
-
-            }
+           return messages.todayBlocks();
         }
 
         if (msg.equals("Features")) {
@@ -276,51 +167,27 @@ public class Bot extends TelegramLongPollingBot {
         }
 
         if (msg.equals("BTC market price in USD")) {
-            BigDecimal marketPrice;
-            try {
-                marketPrice = statisticsImpl.getMarketPriceInUSD();
-                return "Market price is: " + "\n" + "*USD " + marketPrice + "*";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Can't reach market price, but it's grows :)";
-            }
-
-
+            return messages.btcMarketPrice();
         }
 
         if (msg.equals("Hash rate")) {
-            double hashRate;
-            try {
-                hashRate = statisticsImpl.getHashRate();
-                return "Actual Hash Rate is: " + "\n" + "*" + hashRate + "*";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Can't reach Hash Rate, but it's grows :)";
-            }
+           return messages.hashRate();
         }
 
         if (msg.equals("Number Of Transactions")) {
-            long numberOfTrx;
-            try {
-                numberOfTrx = statisticsImpl.getNumberOfTrx();
-                return "Today number of transaction is: " + "\n" + "*" + numberOfTrx + "*";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Can't reach TRX number, but it's grows :)";
-            }
+            return messages.numberOfTrx();
         }
 
         return "How can I help you?";
-
 
     }
 
     public String sendFiles(Boolean isPayed){
         if(isPayed) {
             try {
-
                 execute(sendUploadAction.setChatId(id));
                 execute(sendDocument.setChatId(id));
+                messages.setLastMessage("");
                 return "This .zip with your source code and instructions";
             } catch (TelegramApiException e) {
                 e.printStackTrace();
