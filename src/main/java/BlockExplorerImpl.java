@@ -51,7 +51,7 @@ class BlockExplorerImpl {
         String trxHash;
         try {
             trxHash = transactions.get(0).getHash();
-            System.out.println("TRX HASH" + trxHash);
+            System.out.println("TRX HASH :" + trxHash);
         } catch (IndexOutOfBoundsException e) {
             return "TRX NOT FOUND, you should pay - than check";
         }
