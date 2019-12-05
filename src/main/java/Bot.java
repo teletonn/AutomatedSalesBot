@@ -41,6 +41,7 @@ public class Bot extends TelegramLongPollingBot {
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
     SendDocument sendDocument = new SendDocument();
+    Messages messages = new Messages();
 
 
     public void onUpdateReceived(Update update) {
@@ -96,385 +97,354 @@ public class Bot extends TelegramLongPollingBot {
 
 
     public String getMessage(String msg) {
-        ArrayList<KeyboardRow> keyboard = new ArrayList<KeyboardRow>();
-        KeyboardRow firstKeyboardRow = new KeyboardRow();
-        KeyboardRow secondKeyboardRow = new KeyboardRow();
-        KeyboardRow thirdKeyboardRow = new KeyboardRow();
-
-        keyboardMarkup.setSelective(true);
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardMarkup.setOneTimeKeyboard(false);
 
         if (msg.equals("/start") || msg.equals("Menu") || msg.equals("Hello")) {
-            keyboard.clear();
-            firstKeyboardRow.clear();
-            secondKeyboardRow.clear();
-            firstKeyboardRow.add("Buy source code");
-            secondKeyboardRow.add("Exchanger");
-            secondKeyboardRow.add("Blockchain Checker");
-            secondKeyboardRow.add("Features");
-            keyboard.add(firstKeyboardRow);
-            keyboard.add(secondKeyboardRow);
-            keyboardMarkup.setKeyboard(keyboard);
-
-            return "What do you want to do?";
+            return messages.startMessage(keyboardMarkup);
         }
 
         if (msg.equals("Buy source code")) {
-            keyboard.clear();
-            firstKeyboardRow.clear();
-            secondKeyboardRow.clear();
-            firstKeyboardRow.add("Info about");
-            firstKeyboardRow.add("Start preparing transaction");
-            secondKeyboardRow.add("Check trx status");
-            secondKeyboardRow.add("Menu");
-            keyboard.add(firstKeyboardRow);
-            keyboard.add(secondKeyboardRow);
-            keyboardMarkup.setKeyboard(keyboard);
-
-            return "What's next?";
-
+            return messages.buySourceCode(keyboardMarkup);
         }
 
-        if (msg.equals("Info about")) {
-            return System.getenv("AboutLink");
-        }
-
-        if (msg.equals("Start preparing transaction")) {
-            System.out.println("Start preparing transaction");
-
-            try {
-                System.out.println(xPub.getxPub());
-                receiver.checkXpubGap(xPub.getxPub());
-                ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
-                receiver.setActualPriceInBtc();
-                address = response.getReceivingAddress();
-                index = response.getIndex();
-            } catch (Exception e) {
-                System.out.println("Exception when getting response");
-                if (e.getMessage().contains("Problem with xpub")) {
-                    xPub.getNewXpub(xPub.xpubListCreator());
-                    System.out.println("New xPub is: " + xPub.getxPub());
-                    try {
-                        ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
-                        address = response.getReceivingAddress();
-                        index = response.getIndex();
-                    } catch (Exception e1) {
-                        if (e1.getMessage().contains("Problem with xpub")) {
-                            System.out.println("You need new Xpubs");
-                        }
-                        return "Please contact " + System.getenv("ownerName");    //Heroku Var
-                    }
-                }
-                e.printStackTrace();
-            }
-
-            keyboard.clear();
-            firstKeyboardRow.clear();
-            secondKeyboardRow.clear();
-            thirdKeyboardRow.clear();
-            firstKeyboardRow.add("Check trx status");
-            secondKeyboardRow.add("Cancel trx");
-            thirdKeyboardRow.add("Menu");
-            keyboard.add(firstKeyboardRow);
-            keyboard.add(secondKeyboardRow);
-            keyboard.add(thirdKeyboardRow);
-            keyboardMarkup.setKeyboard(keyboard);
-
-            return "Send " + "*" + receiver.getAmountInBtc() + "* to "
-                    + "\n"
-                    + address
-                    + "\n"
-                    + "Payment should be in *ONE* transaction";
-        }
-
-        if (msg.equals("Check trx status")) {
-            try {
-                trxHash = blockExplorerImpl.getTrxHash(address);
-                isConfirmed = blockExplorerImpl.isConfirmed(trxHash);
-                if (isConfirmed) {
-                    expectedBalance = receiver.getAmountInBtc();
-                    actualBalance = blockExplorerImpl.getAddressBalance(address);
-                    BigDecimal actualBalanceBIG = new BigDecimal(actualBalance);
-
-                    if (actualBalanceBIG.equals(expectedBalance) || actualBalanceBIG.doubleValue() > expectedBalance.doubleValue()) {
-                        System.out.println("Congratulations!!! Someone bought your CODE!" +
-                                "\n" + "You get " + actualBalance + " BTC" +
-                                "\n" + "to this address: " + address +
-                                "\n" + "(actualBalance.equals(expectedBalance) & I give your source code to someone)");
-                        try {
-                            execute(sendUploadAction.setChatId(id));
-                            execute(sendDocument.setChatId(id));
-                            return "Thank you for purchase";
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
-                            return "Server error, dont worry and tell about this situation to " + System.getenv("ownerName");    //Heroku Var
-                        }
-                    } else {
-                        return "You send not enough money, if you *SURE* that it's mistake please contact " + System.getenv("ownerName");     //Heroku Var
-                    }
-
-                } else {
-                    return "TRX UN confirmed, we should wait a bit";
-                }
-
-            } catch (Exception e) {
-                System.out.println("IOException when check trx status");
-                e.printStackTrace();
-                return "Transaction not found";
-            }
-        }
-
-
-            if (msg.equals("Cancel trx")) {
-                address = "";
-                System.out.println("Cancel trx");
-                return "DONE! Cancel trx";
-            }
-
-
-            if (msg.equals("Exchanger")) {
-                System.out.println("Exchanger wanted");
-
-                keyboard.clear();
-                firstKeyboardRow.clear();
-                secondKeyboardRow.clear();
-                thirdKeyboardRow.clear();
-                firstKeyboardRow.add("\uD83C\uDDFA\uD83C\uDDF8USD to BTC");
-                firstKeyboardRow.add("\uD83C\uDDEA\uD83C\uDDFAEUR to BTC");
-                firstKeyboardRow.add("\uD83C\uDDF5\uD83C\uDDF1PLN to BTC");
-                secondKeyboardRow.add("\uD83D\uDCB0 BTC to USD");
-                thirdKeyboardRow.add("Menu");
-                keyboard.add(firstKeyboardRow);
-                keyboard.add(secondKeyboardRow);
-                keyboard.add(thirdKeyboardRow);
-                keyboardMarkup.setKeyboard(keyboard);
-
-                return "Choose your currency";
-            }
-
-            if (msg.contains("USD to BTC")) {
-                lastMessage = msg;
-                return "Type number";
-            }
-
-            if (lastMessage.contains("USD to BTC")) { //TODO Put it to Exchanger new method
-                currency = "USD";
-
-                try {
-                    value = new BigDecimal(msg);
-                    lastMessage = "";
-                } catch (NumberFormatException e) {
-                    return "This is not a number, try again";
-                }
-                return currency +
-                        "*" + value + "*" +
-                        " = " +
-                        "*" + exchanger.exchange(value, currency).toString() + "*" +
-                        " BTC";
-            }
-
-            if (msg.contains("EUR to BTC")) {
-                lastMessage = msg;
-                return "Type number";
-            }
-
-            if (lastMessage.contains("EUR to BTC")) {
-                currency = "EUR";
-
-                try {
-                    value = new BigDecimal(msg);
-                    lastMessage = "";
-                } catch (NumberFormatException e) {
-                    return "This is not a number, try again";
-                }
-                return currency +
-                        "*" + value + "*" +
-                        " = " +
-                        "*" + exchanger.exchange(value,currency).toString() + "*" +
-                        " BTC";
-            }
-
-            if (msg.contains("PLN to BTC")) {
-                lastMessage = msg;
-                return "Type number";
-            }
-
-            if (lastMessage.contains("PLN to BTC")) {
-                currency = "PLN";
-
-                try {
-                    value = new BigDecimal(msg);
-                    lastMessage = "";
-                } catch (NumberFormatException e) {
-                    return "This is not a number, try again";
-                }
-                return currency +
-                        "*" + value + "*" +
-                        " = " +
-                        "*" + exchanger.exchange(value, currency).toString() + "*" +
-                        " BTC";
-            }
-
-            if (msg.equals("Blockchain Checker")) {
-                keyboard.clear();
-                firstKeyboardRow.clear();
-                secondKeyboardRow.clear();
-                thirdKeyboardRow.clear();
-                firstKeyboardRow.add("Check TRX by Hash");
-                firstKeyboardRow.add("Check Address Balance");
-                secondKeyboardRow.add("Fork checker");
-                secondKeyboardRow.add("Today's blocks quantity");
-                thirdKeyboardRow.add("Menu");
-                keyboard.add(firstKeyboardRow);
-                keyboard.add(secondKeyboardRow);
-                keyboard.add(thirdKeyboardRow);
-                keyboardMarkup.setKeyboard(keyboard);
-
-                return "What would you like to check?";
-            }
-
-            if (msg.equals("Check TRX by Hash")) {
-                lastMessage = "Check TRX by Hash";
-                return "Paste TRX Hash";
-            }
-
-            if (lastMessage.contains("Check TRX by Hash")) {
-                String usersHash = msg;
-                lastMessage = "";
-                try {
-                    if (blockExplorerImpl.isConfirmed(usersHash)) {
-                        return "Transaction was *confirmed*";
-                    } else {
-                        return "Transaction is *UN confirmed*";
-                    }
-                } catch (APIException e) {
-                    return "'Transaction *NOT* found";
-                }
-            }
-
-            if (msg.equals("Check Address Balance")) {
-                lastMessage = "Check Address Balance";
-                return "Paste BTC address";
-            }
-
-            if (lastMessage.contains("Check Address Balance")) {
-                String userAddress = msg;
-                lastMessage = "";
-                long userBalance;
-                double userBalanceBtc;
-                try {
-                    userBalance = blockExplorerImpl.getAddressBalance(userAddress);  //get in Satoshi
-                    userBalanceBtc = (double) userBalance / 100000000; //convert to BTC
-                } catch (Exception e) {
-                    return "Wrong BTC address";
-                }
-                return userAddress
-                        + "\n"
-                        + "Address Balance: "
-                        + "\n"
-                        + userBalanceBtc
-                        + " *BTC*";
-            }
-
-            if (msg.equals("Fork checker")) {
-                keyboard.clear();
-                firstKeyboardRow.clear();
-                secondKeyboardRow.clear();
-                thirdKeyboardRow.clear();
-                firstKeyboardRow.add("Check chain for fork");
-                secondKeyboardRow.add("Menu");
-                keyboard.add(firstKeyboardRow);
-                keyboard.add(secondKeyboardRow);
-                keyboardMarkup.setKeyboard(keyboard);
-
-                return "*How it work's:* " +
-                        "\n" +
-                        "`Get's the latest block on the main chain and read its height`" +
-                        "\n" +
-                        "`Use the previous block height to get a list of blocks at that height`" +
-                        "\n" +
-                        "`and detect a potential chain fork`" +
-                        "\n" +
-                        "\n" +
-                        "*Press \"Check chain for fork\" and*" +
-                        "\n" +
-                        "*Wait a bit please, getting blocks takes a while*";
-            }
-
-            if (msg.contains("Check chain for fork")) {
-                System.out.println("Fork checker");
-                if (blockExplorerImpl.isForked()) {
-                    return "\n" + "The main chain has *forked*!" + "\n";
-                } else {
-                    return "\n" + "The chain is still in *one piece* :)" + "\n";
-                }
-            }
-
-            if (msg.equals("Today's blocks quantity")) {
-                System.out.println("Today's mined blocks");
-                int numTodayBlocks;
-                try {
-                    numTodayBlocks = blockExplorerImpl.getTodayBlocks();
-                    return "*" + numTodayBlocks + "*" + " blocks were mined today since 00:00 UTC";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "*Upsss...* Can't reach today's blocks";
-
-                }
-            }
-
-            if (msg.equals("Features")) {
-                keyboard.clear();
-                firstKeyboardRow.clear();
-                secondKeyboardRow.clear();
-                thirdKeyboardRow.clear();
-                firstKeyboardRow.add("BTC market price in USD");
-                firstKeyboardRow.add("Hash rate");
-                secondKeyboardRow.add("Number Of Transactions");
-                thirdKeyboardRow.add("Menu");
-                keyboard.add(firstKeyboardRow);
-                keyboard.add(secondKeyboardRow);
-                keyboard.add(thirdKeyboardRow);
-                keyboardMarkup.setKeyboard(keyboard);
-
-                return "Features still in progress";
-            }
-
-            if (msg.equals("BTC market price in USD")) {
-                BigDecimal marketPrice;
-                try {
-                    marketPrice = statisticsImpl.getMarketPriceInUSD();
-                    return "Market price is: " + "\n" + "*USD " + marketPrice + "*";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "Can't reach market price, but it's grows :)";
-                }
-
-
-            }
-
-            if (msg.equals("Hash rate")) {
-                double hashRate;
-                try {
-                    hashRate = statisticsImpl.getHashRate();
-                    return "Actual Hash Rate is: " + "\n" + "*" + hashRate + "*";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "Can't reach Hash Rate, but it's grows :)";
-                }
-            }
-
-            if (msg.equals("Number Of Transactions")) {
-                long numberOfTrx;
-                try {
-                    numberOfTrx = statisticsImpl.getNumberOfTrx();
-                    return "Today number of transaction is: " + "\n" + "*" + numberOfTrx + "*";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "Can't reach TRX number, but it's grows :)";
-                }
-            }
+//        if (msg.equals("Info about")) {
+//            return System.getenv("AboutLink");
+//        }
+//
+//        if (msg.equals("Start preparing transaction")) {
+//            System.out.println("Start preparing transaction");
+//
+//            try {
+//                System.out.println(xPub.getxPub());
+//                receiver.checkXpubGap(xPub.getxPub());
+//                ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
+//                receiver.setActualPriceInBtc();
+//                address = response.getReceivingAddress();
+//                index = response.getIndex();
+//            } catch (Exception e) {
+//                System.out.println("Exception when getting response");
+//                if (e.getMessage().contains("Problem with xpub")) {
+//                    xPub.getNewXpub(xPub.xpubListCreator());
+//                    System.out.println("New xPub is: " + xPub.getxPub());
+//                    try {
+//                        ReceiveResponse response = receiver.receive(xPub.getxPub(), callbackUrl);
+//                        address = response.getReceivingAddress();
+//                        index = response.getIndex();
+//                    } catch (Exception e1) {
+//                        if (e1.getMessage().contains("Problem with xpub")) {
+//                            System.out.println("You need new Xpubs");
+//                        }
+//                        return "Please contact " + System.getenv("ownerName");    //Heroku Var
+//                    }
+//                }
+//                e.printStackTrace();
+//            }
+//
+//            keyboard.clear();
+//            firstKeyboardRow.clear();
+//            secondKeyboardRow.clear();
+//            thirdKeyboardRow.clear();
+//            firstKeyboardRow.add("Check trx status");
+//            secondKeyboardRow.add("Cancel trx");
+//            thirdKeyboardRow.add("Menu");
+//            keyboard.add(firstKeyboardRow);
+//            keyboard.add(secondKeyboardRow);
+//            keyboard.add(thirdKeyboardRow);
+//            keyboardMarkup.setKeyboard(keyboard);
+//
+//            return "Send " + "*" + receiver.getAmountInBtc() + "* to "
+//                    + "\n"
+//                    + address
+//                    + "\n"
+//                    + "Payment should be in *ONE* transaction";
+//        }
+//
+//        if (msg.equals("Check trx status")) {
+//            try {
+//                trxHash = blockExplorerImpl.getTrxHash(address);
+//                isConfirmed = blockExplorerImpl.isConfirmed(trxHash);
+//                if (isConfirmed) {
+//                    expectedBalance = receiver.getAmountInBtc();
+//                    actualBalance = blockExplorerImpl.getAddressBalance(address);
+//                    BigDecimal actualBalanceBIG = new BigDecimal(actualBalance);
+//
+//                    if (actualBalanceBIG.equals(expectedBalance) || actualBalanceBIG.doubleValue() > expectedBalance.doubleValue()) {
+//                        System.out.println("Congratulations!!! Someone bought your CODE!" +
+//                                "\n" + "You get " + actualBalance + " BTC" +
+//                                "\n" + "to this address: " + address +
+//                                "\n" + "(actualBalance.equals(expectedBalance) & I give your source code to someone)");
+//                        try {
+//                            execute(sendUploadAction.setChatId(id));
+//                            execute(sendDocument.setChatId(id));
+//                            return "Thank you for purchase";
+//                        } catch (TelegramApiException e) {
+//                            e.printStackTrace();
+//                            return "Server error, dont worry and tell about this situation to " + System.getenv("ownerName");    //Heroku Var
+//                        }
+//                    } else {
+//                        return "You send not enough money, if you *SURE* that it's mistake please contact " + System.getenv("ownerName");     //Heroku Var
+//                    }
+//
+//                } else {
+//                    return "TRX UN confirmed, we should wait a bit";
+//                }
+//
+//            } catch (Exception e) {
+//                System.out.println("IOException when check trx status");
+//                e.printStackTrace();
+//                return "Transaction not found";
+//            }
+//        }
+//
+//
+//            if (msg.equals("Cancel trx")) {
+//                address = "";
+//                System.out.println("Cancel trx");
+//                return "DONE! Cancel trx";
+//            }
+//
+//
+//            if (msg.equals("Exchanger")) {
+//                System.out.println("Exchanger wanted");
+//
+//                keyboard.clear();
+//                firstKeyboardRow.clear();
+//                secondKeyboardRow.clear();
+//                thirdKeyboardRow.clear();
+//                firstKeyboardRow.add("\uD83C\uDDFA\uD83C\uDDF8USD to BTC");
+//                firstKeyboardRow.add("\uD83C\uDDEA\uD83C\uDDFAEUR to BTC");
+//                firstKeyboardRow.add("\uD83C\uDDF5\uD83C\uDDF1PLN to BTC");
+//                secondKeyboardRow.add("\uD83D\uDCB0 BTC to USD");
+//                thirdKeyboardRow.add("Menu");
+//                keyboard.add(firstKeyboardRow);
+//                keyboard.add(secondKeyboardRow);
+//                keyboard.add(thirdKeyboardRow);
+//                keyboardMarkup.setKeyboard(keyboard);
+//
+//                return "Choose your currency";
+//            }
+//
+//            if (msg.contains("USD to BTC")) {
+//                lastMessage = msg;
+//                return "Type number";
+//            }
+//
+//            if (lastMessage.contains("USD to BTC")) { //TODO Put it to Exchanger new method
+//                currency = "USD";
+//
+//                try {
+//                    value = new BigDecimal(msg);
+//                    lastMessage = "";
+//                } catch (NumberFormatException e) {
+//                    return "This is not a number, try again";
+//                }
+//                return currency +
+//                        "*" + value + "*" +
+//                        " = " +
+//                        "*" + exchanger.exchange(value, currency).toString() + "*" +
+//                        " BTC";
+//            }
+//
+//            if (msg.contains("EUR to BTC")) {
+//                lastMessage = msg;
+//                return "Type number";
+//            }
+//
+//            if (lastMessage.contains("EUR to BTC")) {
+//                currency = "EUR";
+//
+//                try {
+//                    value = new BigDecimal(msg);
+//                    lastMessage = "";
+//                } catch (NumberFormatException e) {
+//                    return "This is not a number, try again";
+//                }
+//                return currency +
+//                        "*" + value + "*" +
+//                        " = " +
+//                        "*" + exchanger.exchange(value,currency).toString() + "*" +
+//                        " BTC";
+//            }
+//
+//            if (msg.contains("PLN to BTC")) {
+//                lastMessage = msg;
+//                return "Type number";
+//            }
+//
+//            if (lastMessage.contains("PLN to BTC")) {
+//                currency = "PLN";
+//
+//                try {
+//                    value = new BigDecimal(msg);
+//                    lastMessage = "";
+//                } catch (NumberFormatException e) {
+//                    return "This is not a number, try again";
+//                }
+//                return currency +
+//                        "*" + value + "*" +
+//                        " = " +
+//                        "*" + exchanger.exchange(value, currency).toString() + "*" +
+//                        " BTC";
+//            }
+//
+//            if (msg.equals("Blockchain Checker")) {
+//                keyboard.clear();
+//                firstKeyboardRow.clear();
+//                secondKeyboardRow.clear();
+//                thirdKeyboardRow.clear();
+//                firstKeyboardRow.add("Check TRX by Hash");
+//                firstKeyboardRow.add("Check Address Balance");
+//                secondKeyboardRow.add("Fork checker");
+//                secondKeyboardRow.add("Today's blocks quantity");
+//                thirdKeyboardRow.add("Menu");
+//                keyboard.add(firstKeyboardRow);
+//                keyboard.add(secondKeyboardRow);
+//                keyboard.add(thirdKeyboardRow);
+//                keyboardMarkup.setKeyboard(keyboard);
+//
+//                return "What would you like to check?";
+//            }
+//
+//            if (msg.equals("Check TRX by Hash")) {
+//                lastMessage = "Check TRX by Hash";
+//                return "Paste TRX Hash";
+//            }
+//
+//            if (lastMessage.contains("Check TRX by Hash")) {
+//                String usersHash = msg;
+//                lastMessage = "";
+//                try {
+//                    if (blockExplorerImpl.isConfirmed(usersHash)) {
+//                        return "Transaction was *confirmed*";
+//                    } else {
+//                        return "Transaction is *UN confirmed*";
+//                    }
+//                } catch (APIException e) {
+//                    return "'Transaction *NOT* found";
+//                }
+//            }
+//
+//            if (msg.equals("Check Address Balance")) {
+//                lastMessage = "Check Address Balance";
+//                return "Paste BTC address";
+//            }
+//
+//            if (lastMessage.contains("Check Address Balance")) {
+//                String userAddress = msg;
+//                lastMessage = "";
+//                long userBalance;
+//                double userBalanceBtc;
+//                try {
+//                    userBalance = blockExplorerImpl.getAddressBalance(userAddress);  //get in Satoshi
+//                    userBalanceBtc = (double) userBalance / 100000000; //convert to BTC
+//                } catch (Exception e) {
+//                    return "Wrong BTC address";
+//                }
+//                return userAddress
+//                        + "\n"
+//                        + "Address Balance: "
+//                        + "\n"
+//                        + userBalanceBtc
+//                        + " *BTC*";
+//            }
+//
+//            if (msg.equals("Fork checker")) {
+//                keyboard.clear();
+//                firstKeyboardRow.clear();
+//                secondKeyboardRow.clear();
+//                thirdKeyboardRow.clear();
+//                firstKeyboardRow.add("Check chain for fork");
+//                secondKeyboardRow.add("Menu");
+//                keyboard.add(firstKeyboardRow);
+//                keyboard.add(secondKeyboardRow);
+//                keyboardMarkup.setKeyboard(keyboard);
+//
+//                return "*How it work's:* " +
+//                        "\n" +
+//                        "`Get's the latest block on the main chain and read its height`" +
+//                        "\n" +
+//                        "`Use the previous block height to get a list of blocks at that height`" +
+//                        "\n" +
+//                        "`and detect a potential chain fork`" +
+//                        "\n" +
+//                        "\n" +
+//                        "*Press \"Check chain for fork\" and*" +
+//                        "\n" +
+//                        "*Wait a bit please, getting blocks takes a while*";
+//            }
+//
+//            if (msg.contains("Check chain for fork")) {
+//                System.out.println("Fork checker");
+//                if (blockExplorerImpl.isForked()) {
+//                    return "\n" + "The main chain has *forked*!" + "\n";
+//                } else {
+//                    return "\n" + "The chain is still in *one piece* :)" + "\n";
+//                }
+//            }
+//
+//            if (msg.equals("Today's blocks quantity")) {
+//                System.out.println("Today's mined blocks");
+//                int numTodayBlocks;
+//                try {
+//                    numTodayBlocks = blockExplorerImpl.getTodayBlocks();
+//                    return "*" + numTodayBlocks + "*" + " blocks were mined today since 00:00 UTC";
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    return "*Upsss...* Can't reach today's blocks";
+//
+//                }
+//            }
+//
+//            if (msg.equals("Features")) {
+//                keyboard.clear();
+//                firstKeyboardRow.clear();
+//                secondKeyboardRow.clear();
+//                thirdKeyboardRow.clear();
+//                firstKeyboardRow.add("BTC market price in USD");
+//                firstKeyboardRow.add("Hash rate");
+//                secondKeyboardRow.add("Number Of Transactions");
+//                thirdKeyboardRow.add("Menu");
+//                keyboard.add(firstKeyboardRow);
+//                keyboard.add(secondKeyboardRow);
+//                keyboard.add(thirdKeyboardRow);
+//                keyboardMarkup.setKeyboard(keyboard);
+//
+//                return "Features still in progress";
+//            }
+//
+//            if (msg.equals("BTC market price in USD")) {
+//                BigDecimal marketPrice;
+//                try {
+//                    marketPrice = statisticsImpl.getMarketPriceInUSD();
+//                    return "Market price is: " + "\n" + "*USD " + marketPrice + "*";
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    return "Can't reach market price, but it's grows :)";
+//                }
+//
+//
+//            }
+//
+//            if (msg.equals("Hash rate")) {
+//                double hashRate;
+//                try {
+//                    hashRate = statisticsImpl.getHashRate();
+//                    return "Actual Hash Rate is: " + "\n" + "*" + hashRate + "*";
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    return "Can't reach Hash Rate, but it's grows :)";
+//                }
+//            }
+//
+//            if (msg.equals("Number Of Transactions")) {
+//                long numberOfTrx;
+//                try {
+//                    numberOfTrx = statisticsImpl.getNumberOfTrx();
+//                    return "Today number of transaction is: " + "\n" + "*" + numberOfTrx + "*";
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    return "Can't reach TRX number, but it's grows :)";
+//                }
+//            }
 
             return "How can I help you?";
 
