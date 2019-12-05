@@ -178,7 +178,7 @@ public class Bot extends TelegramLongPollingBot {
                     + "Payment should be in *ONE* transaction";
         }
 
-        if (msg.equals("Chek trx status")) {
+        if (msg.equals("Check trx status")) {
             try {
                 trxHash = blockExplorerImpl.getTrxHash(address);
                 isConfirmed = blockExplorerImpl.isConfirmed(trxHash);
