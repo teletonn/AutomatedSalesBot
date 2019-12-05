@@ -35,7 +35,7 @@ public class Bot extends TelegramLongPollingBot {
     Receiver receiver = new Receiver();
     Xpub xPub = new Xpub();
     BlockExplorerImpl blockExplorerImpl = new BlockExplorerImpl();
-    MyStatistics myStatistics = new MyStatistics();
+    StatisticsImpl statisticsImpl = new StatisticsImpl();
 
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
@@ -434,7 +434,7 @@ public class Bot extends TelegramLongPollingBot {
             if (msg.equals("BTC market price in USD")) {
                 BigDecimal marketPrice;
                 try {
-                    marketPrice = myStatistics.getMarketPriceInUSD();
+                    marketPrice = statisticsImpl.getMarketPriceInUSD();
                     return "Market price is: " + "\n" + "*USD " + marketPrice + "*";
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -447,7 +447,7 @@ public class Bot extends TelegramLongPollingBot {
             if (msg.equals("Hash rate")) {
                 double hashRate;
                 try {
-                    hashRate = myStatistics.getHashRate();
+                    hashRate = statisticsImpl.getHashRate();
                     return "Actual Hash Rate is: " + "\n" + "*" + hashRate + "*";
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -458,7 +458,7 @@ public class Bot extends TelegramLongPollingBot {
             if (msg.equals("Number Of Transactions")) {
                 long numberOfTrx;
                 try {
-                    numberOfTrx = myStatistics.getNumberOfTrx();
+                    numberOfTrx = statisticsImpl.getNumberOfTrx();
                     return "Today number of transaction is: " + "\n" + "*" + numberOfTrx + "*";
                 } catch (Exception e) {
                     e.printStackTrace();
