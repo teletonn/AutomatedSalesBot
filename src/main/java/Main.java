@@ -15,5 +15,7 @@ public class Main {
         } catch (TelegramApiRequestException e) {
             System.out.println("exception when registred");
         }
+
+        System.out.println("Bot is ready");
     }
 }
