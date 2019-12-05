@@ -34,7 +34,7 @@ public class Bot extends TelegramLongPollingBot {
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
     Receiver receiver = new Receiver();
     Xpub xPub = new Xpub();
-    MyBlockExplorer myBlockExplorer = new MyBlockExplorer();
+    BlockExplorerImpl blockExplorerImpl = new BlockExplorerImpl();
     MyStatistics myStatistics = new MyStatistics();
 
     SendChatAction sendTypeAction = new SendChatAction();
@@ -180,11 +180,11 @@ public class Bot extends TelegramLongPollingBot {
 
         if (msg.equals("Chek trx status")) {
             try {
-                trxHash = myBlockExplorer.getTrxHash(address);
-                isConfirmed = myBlockExplorer.isConfirmed(trxHash);
+                trxHash = blockExplorerImpl.getTrxHash(address);
+                isConfirmed = blockExplorerImpl.isConfirmed(trxHash);
                 if (isConfirmed) {
                     expectedBalance = receiver.getAmountInBtc();
-                    actualBalance = myBlockExplorer.getAddressBalance(address);
+                    actualBalance = blockExplorerImpl.getAddressBalance(address);
                     BigDecimal actualBalanceBIG = new BigDecimal(actualBalance);
 
                     if (actualBalanceBIG.equals(expectedBalance) || actualBalanceBIG.doubleValue() > expectedBalance.doubleValue()) {
@@ -333,7 +333,7 @@ public class Bot extends TelegramLongPollingBot {
                 String usersHash = msg;
                 lastMessage = "";
                 try {
-                    if (myBlockExplorer.isConfirmed(usersHash) == true) {
+                    if (blockExplorerImpl.isConfirmed(usersHash) == true) {
                         return "Tharnsaction was *confirmed*";
                     } else {
                         return "Tharnsaction is *UN confirmed*";
@@ -354,7 +354,7 @@ public class Bot extends TelegramLongPollingBot {
                 long userBalance;
                 double userBalanceBtc;
                 try {
-                    userBalance = myBlockExplorer.getAddressBalance(userAddress);  //get in Satoshi
+                    userBalance = blockExplorerImpl.getAddressBalance(userAddress);  //get in Satoshi
                     userBalanceBtc = (double) userBalance / 100000000; //convert to BTC
                 } catch (Exception e) {
                     return "Wrong BTC address";
@@ -394,7 +394,7 @@ public class Bot extends TelegramLongPollingBot {
 
             if (msg.contains("Check chain for fork")) {
                 System.out.println("Fork checker");
-                if (myBlockExplorer.isForked()) {
+                if (blockExplorerImpl.isForked()) {
                     return "\n" + "The main chain has *forked*!" + "\n";
                 } else {
                     return "\n" + "The chain is still in *one piece* :)" + "\n";
@@ -405,7 +405,7 @@ public class Bot extends TelegramLongPollingBot {
                 System.out.println("Today's mined blocks");
                 int numTodayBlocks;
                 try {
-                    numTodayBlocks = myBlockExplorer.getTodaysBlocks();
+                    numTodayBlocks = blockExplorerImpl.getTodayBlocks();
                     return "*" + numTodayBlocks + "*" + " blocks were mined today since 00:00 UTC";
                 } catch (Exception e) {
                     e.printStackTrace();
