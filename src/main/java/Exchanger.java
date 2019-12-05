@@ -5,38 +5,17 @@ import java.math.BigDecimal;
 
 public class Exchanger {
 
-    private BigDecimal USDToBTC;
-    private BigDecimal EURToBTC;
-    private BigDecimal PLNToBTC;
-    private BigDecimal BTCToUSD;
+    private BigDecimal MoneyToBTC;
 
     private ExchangeRates exchanger = new ExchangeRates();
 
-    BigDecimal exchangeUSDToBTC(BigDecimal quantity) {
+    BigDecimal exchange(BigDecimal quantity, String currency) {
         try {
-            USDToBTC = exchanger.toBTC("USD", quantity);
+            MoneyToBTC = exchanger.toBTC(currency, quantity);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return USDToBTC;
-    }
-
-    BigDecimal exchangeEURToBTC(BigDecimal quantity) {
-        try {
-            EURToBTC = exchanger.toBTC("EUR", quantity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return EURToBTC;
-    }
-
-    BigDecimal exchangePLNToBTC(BigDecimal quantity) {
-        try {
-            PLNToBTC = exchanger.toBTC("PLN", quantity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return PLNToBTC;
+        return MoneyToBTC;
     }
 
 }

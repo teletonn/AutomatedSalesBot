@@ -259,7 +259,7 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             if (lastMessage.contains("USD to BTC")) { //TODO Put it to Exchanger new method
-                currency = "USD ";
+                currency = "USD";
 
                 try {
                     value = new BigDecimal(msg);
@@ -270,7 +270,7 @@ public class Bot extends TelegramLongPollingBot {
                 return currency +
                         "*" + value + "*" +
                         " = " +
-                        "*" + exchanger.exchangeUSDToBTC(value).toString() + "*" +
+                        "*" + exchanger.exchange(value, currency).toString() + "*" +
                         " BTC";
             }
 
@@ -280,7 +280,7 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             if (lastMessage.contains("EUR to BTC")) {
-                currency = "EUR ";
+                currency = "EUR";
 
                 try {
                     value = new BigDecimal(msg);
@@ -291,7 +291,7 @@ public class Bot extends TelegramLongPollingBot {
                 return currency +
                         "*" + value + "*" +
                         " = " +
-                        "*" + exchanger.exchangeEURToBTC(value).toString() + "*" +
+                        "*" + exchanger.exchange(value,currency).toString() + "*" +
                         " BTC";
             }
 
@@ -301,7 +301,7 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             if (lastMessage.contains("PLN to BTC")) {
-                currency = "PLN ";
+                currency = "PLN";
 
                 try {
                     value = new BigDecimal(msg);
@@ -312,7 +312,7 @@ public class Bot extends TelegramLongPollingBot {
                 return currency +
                         "*" + value + "*" +
                         " = " +
-                        "*" + exchanger.exchangePLNToBTC(value).toString() + "*" +
+                        "*" + exchanger.exchange(value, currency).toString() + "*" +
                         " BTC";
             }
 

@@ -70,7 +70,7 @@ class Receiver {
     public void setActualPriceInBtc() {
         Exchanger exchanger = new Exchanger();
         BigDecimal actualAmount;
-        actualAmount = exchanger.exchangeUSDToBTC(new BigDecimal(System.getenv("PriceInUsd")));    //Heroku Var
+        actualAmount = exchanger.exchange(new BigDecimal(System.getenv("PriceInUsd")), "USD");    //Heroku Var - "PriceInUsd"
         amountInBtc = actualAmount;
     }
 
