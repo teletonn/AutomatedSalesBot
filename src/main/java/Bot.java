@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -23,7 +22,7 @@ public class Bot extends TelegramLongPollingBot {
     private int index;
     private long chatId;
     private String id;
-    private String callbackUrl = "https://google.com/";
+    private String callbackUrl = System.getenv("callbackUrl");    //Heroku Var
     private boolean isConfirmed;
     private String trxHash;
     private BigDecimal value;
@@ -54,8 +53,8 @@ public class Bot extends TelegramLongPollingBot {
         sendUploadAction.setAction(ActionType.UPLOADDOCUMENT);
 
         try {
-            URL url = new URL(System.getenv("FileUrl"));
-            String fileName = System.getenv("FileName");
+            URL url = new URL(System.getenv("FileUrl"));    //Heroku Var
+            String fileName = System.getenv("FileName");    //Heroku Var
             InputStream stream = url.openStream();
             sendDocument.setChatId(update.getMessage().getChatId()).setDocument(fileName,stream);
 
@@ -127,29 +126,18 @@ public class Bot extends TelegramLongPollingBot {
             secondKeyboardRow.clear();
             firstKeyboardRow.add("Info about");
             firstKeyboardRow.add("Start preparing transaction");
-            secondKeyboardRow.add("Chek trx status");
+            secondKeyboardRow.add("Check trx status");
             secondKeyboardRow.add("Menu");
             keyboard.add(firstKeyboardRow);
             keyboard.add(secondKeyboardRow);
             keyboardMarkup.setKeyboard(keyboard);
 
-            try {
-                execute(sendUploadAction.setChatId(id));
-                execute(sendDocument.setChatId(id));
-
-                return "Thank you for purchase";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Server error, dont worry and tell about this to @QwertProject";
-            }
-
-            //return "What's next?";
+            return "What's next?";
 
         }
 
         if (msg.equals("Info about")) {
-            System.out.println("Info about");
-            return "Info about";
+            return System.getenv("AboutLink");
         }
 
         if (msg.equals("Start preparing transaction")) {
@@ -334,7 +322,7 @@ public class Bot extends TelegramLongPollingBot {
                 secondKeyboardRow.clear();
                 thirdKeyboardRow.clear();
                 firstKeyboardRow.add("Check TRX by Hash");
-                firstKeyboardRow.add("Check Adress Balance");
+                firstKeyboardRow.add("Check Address Balance");
                 secondKeyboardRow.add("Fork checker");
                 secondKeyboardRow.add("Today's blocks quantity");
                 thirdKeyboardRow.add("Menu");
@@ -355,22 +343,22 @@ public class Bot extends TelegramLongPollingBot {
                 String usersHash = msg;
                 lastMessage = "";
                 try {
-                    if (blockExplorerImpl.isConfirmed(usersHash) == true) {
-                        return "Tharnsaction was *confirmed*";
+                    if (blockExplorerImpl.isConfirmed(usersHash)) {
+                        return "Transaction was *confirmed*";
                     } else {
-                        return "Tharnsaction is *UN confirmed*";
+                        return "Transaction is *UN confirmed*";
                     }
                 } catch (APIException e) {
                     return "'Transaction *NOT* found";
                 }
             }
 
-            if (msg.equals("Check Adress Balance")) {
-                lastMessage = "Check Adress Balance";
+            if (msg.equals("Check Address Balance")) {
+                lastMessage = "Check Address Balance";
                 return "Paste BTC address";
             }
 
-            if (lastMessage.contains("Check Adress Balance")) {
+            if (lastMessage.contains("Check Address Balance")) {
                 String userAddress = msg;
                 lastMessage = "";
                 long userBalance;
