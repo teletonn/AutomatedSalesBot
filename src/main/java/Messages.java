@@ -434,4 +434,8 @@ public class Messages {
     public void setValue(BigDecimal value) {
         this.value = value;
     }
+
+    public Xpub getxPub() {
+        return xPub;
+    }
 }

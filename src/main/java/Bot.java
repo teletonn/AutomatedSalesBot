@@ -16,8 +16,6 @@ public class Bot extends TelegramLongPollingBot {
     private String id;
 
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-   // Xpub xPub = new Xpub();
-
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
     SendDocument sendDocument = new SendDocument();
