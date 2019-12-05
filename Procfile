@@ -1,0 +1,1 @@
+bot: java -cp target/AutomatedSalesBot-1.0-jar-with-dependencies.jar Main
