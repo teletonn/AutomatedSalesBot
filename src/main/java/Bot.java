@@ -11,7 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -50,7 +52,16 @@ public class Bot extends TelegramLongPollingBot {
         sendTypeAction.setChatId(update.getMessage().getChatId());
         sendTypeAction.setAction(ActionType.TYPING);
         sendUploadAction.setAction(ActionType.UPLOADDOCUMENT);
-        sendDocument.setChatId(update.getMessage().getChatId()).setDocument(new File("https://cdn.neow.in/news/images/uploaded/2018/12/1545326756_codes_story.jpg").getAbsoluteFile());
+
+        try {
+            URL url = new URL(System.getenv("FileUrl"));
+            String fileName = System.getenv("FileName");
+            InputStream stream = url.openStream();
+            sendDocument.setChatId(update.getMessage().getChatId()).setDocument(fileName,stream);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         SendMessage sendMessage = new SendMessage().enableMarkdown(true).setChatId(update.getMessage().getChatId());
         chatId = update.getMessage().getChatId();
@@ -81,6 +92,7 @@ public class Bot extends TelegramLongPollingBot {
 
     public String getBotToken() {
         return System.getenv("BotToken");    //Heroku Var
+
     }
 
 
@@ -121,7 +133,17 @@ public class Bot extends TelegramLongPollingBot {
             keyboard.add(secondKeyboardRow);
             keyboardMarkup.setKeyboard(keyboard);
 
-            return "What's next?";
+            try {
+                execute(sendUploadAction.setChatId(id));
+                execute(sendDocument.setChatId(id));
+
+                return "Thank you for purchase";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Server error, dont worry and tell about this to @QwertProject";
+            }
+
+            //return "What's next?";
 
         }
 
