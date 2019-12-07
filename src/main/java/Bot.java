@@ -9,6 +9,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
@@ -16,6 +18,7 @@ public class Bot extends TelegramLongPollingBot {
     private String id;
     private String userName;
     private String adminUserName = System.getenv("ownerName");    //Heroku Var
+    private int userCount;
 
 
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
@@ -24,11 +27,13 @@ public class Bot extends TelegramLongPollingBot {
     SendDocument sendDocument = new SendDocument();
     Messages messages = new Messages();
     AdminsMessages adminsMessages = new AdminsMessages();
+    List<String> usersList = new ArrayList<>();
 
 
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
-
+        userName = "@" + update.getMessage().getChat().getUserName();
+        usersListAdder();
         messages.xPub.xPubInit();
 
         sendTypeAction.setChatId(update.getMessage().getChatId());
@@ -51,7 +56,9 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage.setReplyMarkup(keyboardMarkup);
 
         id = sendMessage.setChatId(update.getMessage().getChatId()).getChatId();
-        userName = "@" + update.getMessage().getChat().getUserName();
+
+
+
 
         try {
             sendMessage.setText(getMessage(text));
@@ -86,8 +93,28 @@ public class Bot extends TelegramLongPollingBot {
         }
 
         if(isAdmin(userName)){
-            if(msg.contains("Admin Menu")){
+            if (msg.contains("Admin Menu")){
                 return adminsMessages.adminMenu(keyboardMarkup);
+            }
+            if (msg.equals("Check Bot Users")){
+                return adminsMessages.checkBotUsers(keyboardMarkup);
+            }
+            if (msg.equals("Check quantity")){
+                userCounter();
+                return "Users quantity: *" + userCount + "*";
+            }
+            if (msg.equals("checkUsersList")){
+                return userListPrinter();
+            }
+
+            if (msg.equals("Check what users checked")){
+
+            }
+            if (msg.equals("Check your balance")){
+
+            }
+            if(msg.equals("Admin Features")){
+
             }
         }
 
@@ -219,6 +246,26 @@ public class Bot extends TelegramLongPollingBot {
         else {
             return false;
         }
+    }
+
+    public void usersListAdder(){
+        usersList.add(System.getenv("ownerName"));
+        if(!usersList.contains(userName)){
+            usersList.add(userName);
+        }
+    }
+
+    public String userListPrinter(){
+        String allUsers = usersList.get(0);
+        for (int i = 1; i < usersList.size(); i++){
+            usersList.get(i);
+            allUsers += "\n" + usersList.get(i);
+        }
+        return "All users list: \n" + allUsers;
+    }
+
+    public void userCounter(){
+        userCount = usersList.size();
     }
 
 }

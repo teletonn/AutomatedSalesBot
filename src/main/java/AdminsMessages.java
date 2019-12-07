@@ -23,13 +23,31 @@ public class AdminsMessages extends Messages {
         keyboard.clear();
         firstKeyboardRow.clear();
         secondKeyboardRow.clear();
+        thirdKeyboardRow.clear();
         firstKeyboardRow.add("Check Bot Users");
         secondKeyboardRow.add("Check what users checked");
         secondKeyboardRow.add("Check your balance");
         secondKeyboardRow.add("Admin Features");
+        thirdKeyboardRow.add("Menu");
+        keyboard.add(firstKeyboardRow);
+        keyboard.add(secondKeyboardRow);
+        keyboard.add(thirdKeyboardRow);
+        keyboardMarkup.setKeyboard(keyboard);
+        return "What Admin wants to do?";
+    }
+
+    public String checkBotUsers (ReplyKeyboardMarkup keyboardMarkup){
+        keyboard.clear();
+        firstKeyboardRow.clear();
+        secondKeyboardRow.clear();
+        thirdKeyboardRow.clear();
+        firstKeyboardRow.add("Check quantity");
+        firstKeyboardRow.add("Check Users List");
+        secondKeyboardRow.add("Menu");
         keyboard.add(firstKeyboardRow);
         keyboard.add(secondKeyboardRow);
         keyboardMarkup.setKeyboard(keyboard);
-        return "Welcome " + "*" + System.getenv("ownerName") + "*";    //Heroku Var
+        return "What Admin wants to do next?";
     }
+
 }
