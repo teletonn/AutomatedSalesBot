@@ -14,12 +14,16 @@ public class Bot extends TelegramLongPollingBot {
 
     private long chatId;
     private String id;
+    private String userName;
+    private String adminUserName = System.getenv("ownerName");    //Heroku Var
+
 
     ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
     SendChatAction sendTypeAction = new SendChatAction();
     SendChatAction sendUploadAction = new SendChatAction();
     SendDocument sendDocument = new SendDocument();
     Messages messages = new Messages();
+    AdminsMessages adminsMessages = new AdminsMessages();
 
 
     public void onUpdateReceived(Update update) {
@@ -47,6 +51,7 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage.setReplyMarkup(keyboardMarkup);
 
         id = sendMessage.setChatId(update.getMessage().getChatId()).getChatId();
+        userName = "@" + update.getMessage().getChat().getUserName();
 
         try {
             sendMessage.setText(getMessage(text));
@@ -73,7 +78,17 @@ public class Bot extends TelegramLongPollingBot {
         messages.createKeyboard(keyboardMarkup);
 
         if (msg.equals("/start") || msg.equals("Menu") || msg.equals("Hello")) {
-            return messages.startMessage(keyboardMarkup);
+            if(isAdmin(userName)){
+                return adminsMessages.startAdminMessage(keyboardMarkup);
+            }else {
+                return messages.startMessage(keyboardMarkup);
+            }
+        }
+
+        if(isAdmin(userName)){
+            if(msg.contains("Admin Menu")){
+                return adminsMessages.adminMenu(keyboardMarkup);
+            }
         }
 
         if (msg.equals("Buy source code")) {
@@ -194,6 +209,15 @@ public class Bot extends TelegramLongPollingBot {
         }
         else {
             return "You didnt Pay yet";
+        }
+    }
+
+    public boolean isAdmin(String userName){
+        if (userName.equals(adminUserName)){
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
