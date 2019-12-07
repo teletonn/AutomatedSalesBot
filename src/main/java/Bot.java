@@ -28,7 +28,9 @@ public class Bot extends TelegramLongPollingBot {
     Messages messages = new Messages();
     AdminsMessages adminsMessages = new AdminsMessages();
     List<String> usersList = new ArrayList<>();
-
+    {
+        usersList.add(System.getenv("ownerName"));
+    }
 
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
@@ -103,7 +105,7 @@ public class Bot extends TelegramLongPollingBot {
                 userCounter();
                 return "Users quantity: *" + userCount + "*";
             }
-            if (msg.equals("checkUsersList")){
+            if (msg.equals("Check Users List")){
                 return userListPrinter();
             }
 
@@ -249,7 +251,6 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public void usersListAdder(){
-        usersList.add(System.getenv("ownerName"));
         if(!usersList.contains(userName)){
             usersList.add(userName);
         }
