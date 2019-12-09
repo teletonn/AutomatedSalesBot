@@ -34,7 +34,7 @@ public class Bot extends TelegramLongPollingBot {
 
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
-        userName = "@" + update.getMessage().getChat().getUserName();
+        userName = getUserName(update);
         usersListAdder();
         messages.xPub.xPubInit();
 
@@ -267,6 +267,17 @@ public class Bot extends TelegramLongPollingBot {
 
     public void userCounter(){
         userCount = usersList.size();
+    }
+
+    public String getUserName(Update update){
+        if(update.getMessage().getChat().getUserName().equals("") || update.getMessage().getChat().getUserName().equals(null)){
+            return update.getMessage().getChat().getFirstName() +
+                    " " +
+                    update.getMessage().getChat().getLastName();
+        }
+        else {
+            return "@" + update.getMessage().getChat().getUserName();
+        }
     }
 
 }
