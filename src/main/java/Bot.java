@@ -135,6 +135,7 @@ public class Bot extends TelegramLongPollingBot {
                 return adminsMessages.checkAdminBalance();
             }
             if(msg.equals("Admin Features")){
+                sendFiles(true);
                 return "In progress";
             }
         }
