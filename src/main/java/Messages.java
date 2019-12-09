@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Messages {
 
@@ -28,6 +29,8 @@ public class Messages {
     BlockExplorerImpl blockExplorerImpl = new BlockExplorerImpl();
     StatisticsImpl statisticsImpl = new StatisticsImpl();
 
+    List<String> usersAddressesList = new ArrayList<>();
+    List<String> usersTransactionsList = new ArrayList<>();
     ArrayList<KeyboardRow> keyboard = new ArrayList<KeyboardRow>();
     KeyboardRow firstKeyboardRow = new KeyboardRow();
     KeyboardRow secondKeyboardRow = new KeyboardRow();
@@ -268,8 +271,10 @@ public class Messages {
         lastMessage = "";
         try {
             if (blockExplorerImpl.isConfirmed(usersHash)) {
+                usersTransactionsList.add("`" + usersHash + "`" + " - confirmed\n");
                 return "Transaction was *confirmed*";
             } else {
+                usersTransactionsList.add("`" + usersHash + "` - UN confirmed\n");
                 return "Transaction is *UN confirmed*";
             }
         } catch (APIException e) {
@@ -290,6 +295,7 @@ public class Messages {
         try {
             userBalance = blockExplorerImpl.getAddressBalance(userAddress);  //get in Satoshi
             userBalanceBtc = (double) userBalance / 100000000; //convert to BTC
+            usersAddressesList.add("`"+ userAddress + "` - Balance: " + userBalanceBtc + "\n");
         } catch (Exception e) {
             return "Wrong BTC address";
         }

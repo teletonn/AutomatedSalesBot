@@ -95,7 +95,7 @@ public class Bot extends TelegramLongPollingBot {
         }
 
         if(isAdmin(userName)){
-            if (msg.contains("Admin Menu")){
+            if (msg.equals("Admin Menu")){
                 return adminsMessages.adminMenu(keyboardMarkup);
             }
             if (msg.equals("Check Bot Users")){
@@ -110,8 +110,27 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             if (msg.equals("Check what users checked")){
-
+                return adminsMessages.usersChecked(keyboardMarkup);
             }
+            if (msg.equals("Users Transactions")){
+                return adminsMessages.usersTrx(keyboardMarkup);
+            }
+            if (msg.equals("Check TRX quantity")){
+                return "Checked transactions quantity: *" + elementsInListCounter(messages.usersTransactionsList) + "*";
+            }
+            if (msg.equals("Check TRX List")){
+                return listPrinter(messages.usersTransactionsList);
+            }
+            if (msg.equals("Users Addresses")){
+                return adminsMessages.usersAddresses(keyboardMarkup);
+            }
+            if (msg.equals("Check Addresses quantity")){
+                return "Checked addresses quantity: *" + elementsInListCounter(messages.usersAddressesList) + "*";
+            }
+            if (msg.equals("Check Addresses List")){
+                return listPrinter(messages.usersAddressesList);
+            }
+
             if (msg.equals("Check your balance")){
 
             }
@@ -250,25 +269,6 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void usersListAdder(){
-        if(!usersList.contains(userName)){
-            usersList.add(userName);
-        }
-    }
-
-    public String userListPrinter(){
-        String allUsers = usersList.get(0);
-        for (int i = 1; i < usersList.size(); i++){
-            usersList.get(i);
-            allUsers += "\n" + usersList.get(i);
-        }
-        return "All users list: \n" + allUsers;
-    }
-
-    public void userCounter(){
-        userCount = usersList.size();
-    }
-
     public String getUserName(Update update){
         if(update.getMessage().getChat().getUserName().equals("") || update.getMessage().getChat().getUserName().equals(null)){
             return update.getMessage().getChat().getFirstName() +
@@ -279,5 +279,37 @@ public class Bot extends TelegramLongPollingBot {
             return "@" + update.getMessage().getChat().getUserName();
         }
     }
+
+    public void usersListAdder(){
+        if(!usersList.contains(userName)){
+            usersList.add(userName);
+        }
+    }
+
+    public String userListPrinter(){
+        String allUsers = usersList.get(0);
+        for (int i = 1; i < usersList.size(); i++){
+            allUsers += "\n" + usersList.get(i);
+        }
+        return "All users list: \n" + allUsers;
+    }
+
+    public void userCounter(){
+        userCount = usersList.size();
+    }
+
+    public String listPrinter(List list){
+        String fullList = "Full list: \n";
+        for(int i = 0; i < list.size(); i++){
+            fullList += list.get(i) + "\n";
+        }
+        return fullList;
+    }
+
+    public int elementsInListCounter(List list){
+        int listCounter = list.size();
+        return listCounter;
+    }
+
 
 }
