@@ -72,4 +72,24 @@ class BlockExplorerImpl {
         }
         return isConf;
     }
+
+    public Long adminBalance(){
+        long balance = 1;
+        try {
+            XpubFull xPub1 = blockExplorer.getXpub(System.getenv("xPub1"), FilterType.All, 10, 5);
+            XpubFull xPub2 = blockExplorer.getXpub(System.getenv("xPub1"), FilterType.All, 10, 5);
+            XpubFull xPub3 = blockExplorer.getXpub(System.getenv("xPub1"), FilterType.All, 10, 5);
+            XpubFull xPub4 = blockExplorer.getXpub(System.getenv("xPub1"), FilterType.All, 10, 5);
+            XpubFull xPub5 = blockExplorer.getXpub(System.getenv("xPub1"), FilterType.All, 10, 5);
+
+            balance = xPub1.getFinalBalance() +
+                      xPub2.getFinalBalance() +
+                      xPub3.getFinalBalance() +
+                      xPub4.getFinalBalance() +
+                      xPub5.getFinalBalance();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return balance;
+    }
 }

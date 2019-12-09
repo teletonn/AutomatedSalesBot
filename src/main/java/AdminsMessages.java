@@ -92,4 +92,8 @@ public class AdminsMessages extends Messages {
         return "What Admin wants to do next?";
     }
 
+    public String checkAdminBalance(){
+        return "Balance from your xPubs in Satoshi: \n" + blockExplorerImpl.adminBalance();
+    }
+
 }

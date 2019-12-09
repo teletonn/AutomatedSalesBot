@@ -132,10 +132,10 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             if (msg.equals("Check your balance")){
-
+                return adminsMessages.checkAdminBalance();
             }
             if(msg.equals("Admin Features")){
-
+                return "In progress";
             }
         }
 
